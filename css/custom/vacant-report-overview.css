@@ -166,24 +166,25 @@ td {
 }
 
 
-.search_list_box { 
-  height: 20px; 
-  line-height: 20px; 
-  border: solid 1px #d8e1e7; 
-  border-right: none; 
-  display: inline-block; 
-  float: left; 
+.search_list_box {
+  height: 20px;
+  line-height: 20px;
+  border: solid 1px #d8e1e7;
+  border-right: none;
+  border-top: none;
+  float: left;
   width: auto;
 }
-.search_list_box .list { 
-  display: inline-block; 
-  float: left; 
-  text-align: center; 
-  min-width: 90px; 
-  background: #f9fbfb; 
-  border-right:solid 1px #d8e1e7;
+.search_list_box .list {
+  
+  float: left;
+  text-align: center;
+  min-width: 90px;
+  background: #f9fbfb;
+  border:solid 1px #d8e1e7;
 }
-.search_list_box .list.on{ 
+
+.search_list_box .list.on{
   background: #fceda9;
 }
 

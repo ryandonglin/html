@@ -29,18 +29,24 @@
           <input class="t_text w160" id="roomNo" name="roomNo"/>
         </td>
       </tr>
-    
+
       <tr>
         <td class="tr1 t_span">空置天数:</td>
-        <td colspan="4" rowspan="2">
+        <td colspan="4">
           <div id="optionName" class="search_list_box">
           <span rel="0" class="list search_data_btn on t_span">所有</span>
           <span rel="1" class="list search_data_btn t_span">0-5天</span>
           <span rel="2" class="list search_data_btn t_span">6-10天</span>
           <span rel="3" class="list search_data_btn t_span">11-15天</span>
           <span rel="4" class="list search_data_btn t_span">15天以上</span>
+          <br />
           <span id="customBtn" class="list t_span" onclick="addCustomDefDays();">自定义天数</span>
-        </div>
+          <span id="cdata0" rel="5" class="list search_data_btn t_span" hidden="hidden">hhhhh</span>
+          <span id="cdata1" rel="6" class="list search_data_btn t_span" hidden="hidden"></span>
+          <span id="cdata2" rel="7" class="list search_data_btn t_span" hidden="hidden"></span>
+          <span id="cdata3" rel="8" class="list search_data_btn t_span" hidden="hidden"></span>
+          <span id="cdata4" rel="9" class="list search_data_btn t_span" hidden="hidden"></span>
+          </div>
         </td>
         <td class="tr">
           <input type="button" class="searchBtn" value="查询" onclick=""/>
@@ -49,9 +55,14 @@
           <input type="button" class="exportBtn" value="导出库存明细" onclick=""/>
         </td>
       </tr>
-      <tr id="customData">
+      <!--<tr>
+        <td  class="tr1 t_span"></td>
+        <td>
+          <div id="customData" class="search_list_box">
 
-      </tr>
+          </div>
+        </td>
+      </tr>-->
     </table>
   </div>
   <div class="option_header">库存明细</div>
@@ -76,8 +87,8 @@
 <div id="hovertreewindow" class="easyui-window" title="自定义空置天数" data-options="iconCls:'icon-save'" style="width:500px;height:200px;padding:10px;">
 </div>
 -->
-<div id="win" class="easyui-window" title="自定义空置天数" style="width:400px; height:auto;" closed="true">  
-    <form id="custom0" class="alert_form">  
+<div id="win" class="easyui-window" title="自定义空置天数" style="width:400px; height:auto;" closed="true">
+    <form id="custom0" class="alert_form">
       <table class="table_style" id="alerttable">
         <tr>
           <td class="thfz">选择空置天数</td>
@@ -85,11 +96,11 @@
         <tr num="0">
           <td class="first_col thfz">区间:</td>
           <td>
-            <input type="text" id="startTime0" name="startTime0" num="0" class="input_box" onblur="checkStartNum(this);"/>
+            <input type="text" id="startTime0" name="startTime0" num="0" class="input_box" onblur="checkStartNum(this);" value=0 >
           </td>
           <td class="span_width thfz">--</td>
           <td>
-            <input type="text" formNum=0 id="endTime0" name="endTime0" num="0" class="input_box" onblur="checkEndNum(this);"/>
+            <input type="text" formNum=0 id="endTime0" name="endTime0" num="0" class="input_box" onblur="checkEndNum(this);" value=10000 >
           </td>
           <td class="thfz">天</td>
         </tr>
@@ -99,11 +110,11 @@
         <input  id="addBtn" name="addBtn" type="button" class="alertBtn" value="添加区间" onclick="addOptions();"/>
       </div>
 
-      <div style="padding:5px;text-align:center;">  
-        <input type="button" class="alertBtn" value="确认添加" onclick="addCustomData();">   
-        <input type="button" class="alertBtn" value="取消" onclick="closeForm();">  
-      </div>  
-    </form>  
+      <div style="padding:5px;text-align:center;">
+        <input type="button" class="alertBtn" value="确认添加" onclick="addCustomData();">
+        <input type="button" class="alertBtn" value="取消" onclick="closeForm();">
+      </div>
+    </form>
 </div>
 
 
@@ -119,7 +130,24 @@
   }
 
   function addCustomDefDays() {
-    j = 1;
+    j = $(".first_col").length;
+    refreshTable();
+    for (var i = 0; i < 5; i ++) {
+      console.log($("#cdata" + i).is(":hidden"));
+      if ($("#cdata" + i).is(":hidden")) {
+        break;
+      }
+      if (0 != i) {
+        addOptions();
+      }
+      var sessions = $("#cdata" + i).html();
+      sessions = sessions.replace('天', '');
+      var index = sessions.indexOf('-');
+      var startTime = sessions.substr(0, index);
+      var endTime = sessions.substr(index + 1, sessions.length);
+      $("#startTime"+i).val(startTime);
+      $("#endTime"+i).val(endTime);
+    }
     $("#win").window("open");
   }
 
@@ -130,14 +158,21 @@
 
   function addCustomData() {
     // 添加表格中的数据
+    var index = 0;
     $(".first_col").each(function(i){
 
       var id = $(this).parent().attr("num");
-      console.log(id);
-      var str = '<tr><span rel="4" class="list search_data_btn t_span">15天以上</span><tr>';
-      $("#customData").append(str);
-    })
+      //console.log(id);
+      var startTime = $("#startTime" + id).val();
+      var endTime = $("#endTime" + id).val();
+      $("#cdata" + index ).removeAttr("hidden");
+      $("#cdata" + index ).html(startTime+"-"+endTime+"天");
+      index ++;
+    });
     closeForm();
+    for ( ; index < 5; index++) {
+      $("#cdata" + index ).attr("hidden","hidden");
+    }
   }
 
   var j = 1;
@@ -148,11 +183,11 @@
     var innerhtml = '<tr id="custom'+j+'" + num="'+j+'">'
     +'      <td class="first_col thfz">区间 :</td>'
     +'      <td>'
-    +'        <input type="text" id="startTime'+j+'" name="startTime'+j+'" num="'+j+'"class="input_box" onblur="checkStartNum(this);"/>'
+    +'        <input type="text" id="startTime'+j+'" name="startTime'+j+'" num="'+j+'"class="input_box" onblur="checkStartNum(this);" value=0 >'
     +'      </td>'
     +'      <td class="span_width thfz">--</td>'
     +'      <td>'
-    +'        <input type="text" formNum='+j+' id="endTime'+j+'" name="endTime'+j+'" num="'+j+'" class="input_box" onblur="checkEndNum(this);"/>'
+    +'        <input type="text" formNum='+j+' id="endTime'+j+'" name="endTime'+j+'" num="'+j+'" class="input_box" onblur="checkEndNum(this);" value=10000 >'
     +'      </td>'
     +'      <td class="thfz">天</td>'
     +'      <td class="thfz"><a href="javascript:void(0)"" id="'+j+'" onclick="delElement(this.id);" >删除</a></td>'
@@ -196,11 +231,11 @@
       var innerhtml = '<tr id="custom'+i+'">'
       +'      <td class="first_col thfz">区间'+index+':</td>'
       +'      <td>'
-      +'        <input type="text" id="startTime'+i+'" name="startTime'+i+'" num="'+i+'" class="input_box" onblur="checkStartNum(this);"/>'
+      +'        <input type="text" id="startTime'+i+'" name="startTime'+i+'" num="'+i+'" class="input_box" onblur="checkStartNum(this);" value="0"/>'
       +'      </td>'
       +'      <td class="span_width thfz">--</td>'
       +'      <td>'
-      +'        <input type="text" formNum='+i+' id="endTime'+i+'" name="endTime'+i+'" num="'+i+'" class="input_box" onblur="checkEndNum(this);"/>'
+      +'        <input type="text" formNum='+i+' id="endTime'+i+'" name="endTime'+i+'" num="'+i+'" class="input_box" onblur="checkEndNum(this);"  value="10000"/>'
       +'      </td>'
       +'      <td class="thfz">天</td>'
       +'      <td class="thfz"><a href="javascript:void(0)"" id="'+i+'" onclick="delElement(this.id);" >删除</a></td>'
@@ -216,13 +251,13 @@
     id = $(handler).attr("num");
     var num = $("#startTime"+id).val();
     if(isNaN(num)) {
-      $("#startTime"+id).val(0); 
-      alert("不符合空置区间范围，请在0-10000范围内录入");   
+      $("#startTime"+id).val(0);
+      $.messager.alert("不符合空置区间范围，请在0-10000范围内录入");
     }
 
     if(parseInt(num) > 10000 || parseInt(num) < 0) {
       $("#startTime"+id).val(0);
-      alert("不符合空置区间范围，请在0-10000范围内录入");   
+      $.messager.alert("不符合空置区间范围，请在0-10000范围内录入");
     }
   }
 
@@ -231,20 +266,22 @@
     var startNum = $("#startTime"+id).val();
     var num = $("#endTime"+id).val();
     if(isNaN(num)) {
-      $("#endTime"+id).val(10000); 
-      alert("不符合空置区间范围，请在0-10000范围内录入");   
+      $("#endTime"+id).val(10000);
+      $.messager.alert("不符合空置区间范围，请在0-10000范围内录入");
     } else if(parseInt(num) > 10000 || parseInt(num) < 0) {
       $("#endTime"+id).val(10000);
-      alert("不符合空置区间范围，请在0-10000范围内录入");   
+      $.messager.alert("不符合空置区间范围，请在0-10000范围内录入");
     } else if (parseInt(startNum) >= parseInt(num)){
       $("#endTime"+id).val(10000);
-      alert("不符合空置区间范围，请在0-10000范围内录入");   
+      $.messager.alert("不符合空置区间范围，请在0-10000范围内录入");
     }
 
   }
 
   $(function(){
     $("#optionName .search_data_btn").click(function(){
+
+      console.log($("#optionName .search_data_btn").length);
       if($(this).attr("rel")==0) {
         $(this).addClass("on").siblings(".search_data_btn").removeClass("on");
       } else{
@@ -253,7 +290,7 @@
           if($("#optionName .search_data_btn.on").length<1){
             $("#optionName .search_data_btn").eq(0).addClass("on");
           }
-          
+
         }
         else{
           $(this).addClass("on");
