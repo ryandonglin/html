@@ -1,0 +1,10 @@
+{
+  "projName":"所有项目",
+  "totalHouseNum":200,
+  "vacantRate":25,
+  "totalVacant":50,
+  "toRentVacant":29,
+  "configuringVacant":21,
+  "alreadRent":150,
+  "notAvaliable":0
+}

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<html>
+<head>
+  <title>空置库存查询</title>
+</head>
+<link href="../css/easyui.css" type="text/css" rel="stylesheet"/>
+<link href="../css/icon.css" type="text/css" rel="stylesheet"/>
+<link href="../css/custom/vacant-report-overview.css" type="text/css" rel="stylesheet"/>
+<script src="../js/jquery-3.1.1.min.js" type="text/javascript"></script>
+<script src="../js/jquery-easyui/jquery.easyui.min.js" type="text/javascript"></script>
+<body>
+<form id="vacantreport" class="form_frame">
+  <div class="title_header">空置库存查询</div>
+  <div class="search_options">
+    <table cellpadding="0" cellspacing="0" class="search_header">
+      <tr>
+        <td class="tr1 t_span">项目:</td>
+        <td>
+          <select class="t_text w160" id="projName" name="projName">
+          </select>
+        </td>
+        <td class="tr t_span">日期:</td>
+        <td>
+          <input class="t_text w160" name="searchDate" id="searchDate" value="<fmt:formatDate value='${rentContract.conStartDate}' pattern='yyyy-MM-dd'/>"/>
+        </td>
+        <td class="tr t_span">房间/床位号</td>
+        <td>
+          <input class="t_text w160" id="roomNo" name="roomNo"/>
+        </td>
+      </tr>
+      <tr>
+        <td class="tr1">空置天数:</td>
+        <td>
+        </td>
+        <td class="tr">
+          <input type="button" class="searchBtn" value="查询" onclick=""/>
+        </td>
+        <td class="tr">
+          <input type="button" class="exportBtn" value="导出库存明细" onclick=""/>
+        </td>
+      </tr>
+      <tr>
+      </tr>
+    </table>
+  </div>
+  <div class="option_header">库存明细</div>
+  <table id="vacant_detail" class="easyui-datagrid" style="width: 100%;"
+			data-options="rownumbers:false,singleSelect:false,fitColumns:true,url:'',method:'get'">
+    <thead>
+      <tr>
+        <th style="height: 30px;" data-options="field: 'roomNo',width:'100',align:'center'" rowspan="1">房间/床位号</th>
+        <th style="height: 30px;" data-options="field: 'projName',width:'100',align:'center'" rowspan="1">项目</th>
+        <th style="height: 30px;" data-options="field: 'houseType',width:'100',align:'center'" rowspan="1">户型</th>
+        <th style="height: 30px;" data-options="field: 'rentType',width:'100',align:'center'" rowspan="1">出租方式</th>
+        <th style="height: 30px;" data-options="field: 'roomStatus',width:'100',align:'center'" rowspan="1">房间状态</th>
+        <th style="height: 30px;" data-options="field: 'vacantDays',width:'100',align:'center'" rowspan="1">空置天数</th>
+        <th style="height: 30px;" data-options="field: 'seeNum',width:'100',align:'center'" rowspan="1">7天内带看次数</th>
+
+      </tr>
+    </thead>
+  </table>
+</form>
+</body>
+</html>
+
+<script>
+  $("#vacant_report").datagrid ({
+    data:[
+      {
+        "projNameSum":"所有项目",
+        "totalHouseNum":200,
+        "vacantRate":25,
+        "totalVacant":50,
+        "toRentVacant":29,
+        "configuringVacant":21,
+        "alreadRent":150,
+        "notAvaliable":0
+      }
+    ]
+  });
+
+  function changeOverviewHeader(){
+    var panel = $(this).datagrid("getPanel");
+     var myheaderCol = panel.find("div.datagrid-header td[field='quantity']");
+     myheaderCol.css("background-color","#0000ee");
+  }
+</script>

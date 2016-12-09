@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<html>
+<head>
+  <title>空置库存查询</title>
+</head>
+<link href="../css/easyui.css" type="text/css" rel="stylesheet"/>
+<link href="../css/icon.css" type="text/css" rel="stylesheet"/>
+<link href="../css/custom/vacant-report-overview.css" type="text/css" rel="stylesheet"/>
+<script src="../js/jquery-3.1.1.min.js" type="text/javascript"></script>
+<script src="../js/jquery-easyui/jquery.easyui.min.js" type="text/javascript"></script>
+<body>
+<form id="vacantreport" class="form_frame">
+  <div class="title_header">空置库存查询</div>
+  <div class="search_options">
+    <table cellpadding="0" cellspacing="0" class="search_header">
+      <tr>
+        <td class="tr1 t_span">项目:</td>
+        <td>
+          <select class="t_text w160" id="projName" name="projName">
+          </select>
+        </td>
+        <td class="tr t_span">日期:</td>
+        <td>
+          <input class="t_text w160" name="searchDate" id="searchDate" value="<fmt:formatDate value='${rentContract.conStartDate}' pattern='yyyy-MM-dd'/>"/>
+        </td>
+        <td class="tr t_span">房间/床位号</td>
+        <td>
+          <input class="t_text w160" id="roomNo" name="roomNo"/>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="tr1 t_span">空置天数:</td>
+        <td colspan="4" rowspan="2">
+          <div id="optionName" class="search_list_box">
+          <span rel="0" class="list search_data_btn on t_span">所有</span>
+          <span rel="1" class="list search_data_btn t_span">0-5天</span>
+          <span rel="2" class="list search_data_btn t_span">6-10天</span>
+          <span rel="3" class="list search_data_btn t_span">11-15天</span>
+          <span rel="4" class="list search_data_btn t_span">15天以上</span>
+          <span id="customBtn" class="list t_span" onclick="addCustomDefDays();">自定义天数</span>
+        </div>
+        </td>
+        <td class="tr">
+          <input type="button" class="searchBtn" value="查询" onclick=""/>
+        </td>
+        <td class="tr">
+          <input type="button" class="exportBtn" value="导出库存明细" onclick=""/>
+        </td>
+      </tr>
+      <tr id="customData">
+
+      </tr>
+    </table>
+  </div>
+  <div class="option_header">库存明细</div>
+  <table id="vacant_detail" class="easyui-datagrid" style="width: 100%;"
+			data-options="rownumbers:false,singleSelect:false,fitColumns:true,url:'',method:'get'">
+    <thead>
+      <tr>
+        <th style="height: 30px;" data-options="field: 'roomNo',width:'100',align:'center'" rowspan="1">房间/床位号</th>
+        <th style="height: 30px;" data-options="field: 'projName',width:'100',align:'center'" rowspan="1">项目</th>
+        <th style="height: 30px;" data-options="field: 'houseType',width:'100',align:'center'" rowspan="1">户型</th>
+        <th style="height: 30px;" data-options="field: 'rentType',width:'100',align:'center'" rowspan="1">出租方式</th>
+        <th style="height: 30px;" data-options="field: 'roomStatus',width:'100',align:'center'" rowspan="1">房间状态</th>
+        <th style="height: 30px;" data-options="field: 'vacantDays',width:'100',align:'center'" rowspan="1">空置天数</th>
+        <th style="height: 30px;" data-options="field: 'seeNum',width:'100',align:'center'" rowspan="1">7天内带看次数</th>
+
+      </tr>
+    </thead>
+  </table>
+</form>
+
+<!--
+<div id="hovertreewindow" class="easyui-window" title="自定义空置天数" data-options="iconCls:'icon-save'" style="width:500px;height:200px;padding:10px;">
+</div>
+-->
+<div id="win" class="easyui-window" title="自定义空置天数" style="width:400px; height:auto;" closed="true">  
+    <form id="custom0" class="alert_form">  
+      <table class="table_style" id="alerttable">
+        <tr>
+          <td class="thfz">选择空置天数</td>
+        </tr>
+        <tr num="0">
+          <td class="first_col thfz">区间:</td>
+          <td>
+            <input type="text" id="startTime0" name="startTime0" num="0" class="input_box" onblur="checkStartNum(this);"/>
+          </td>
+          <td class="span_width thfz">--</td>
+          <td>
+            <input type="text" formNum=0 id="endTime0" name="endTime0" num="0" class="input_box" onblur="checkEndNum(this);"/>
+          </td>
+          <td class="thfz">天</td>
+        </tr>
+      </table>
+
+      <div style="padding:5px;">
+        <input  id="addBtn" name="addBtn" type="button" class="alertBtn" value="添加区间" onclick="addOptions();"/>
+      </div>
+
+      <div style="padding:5px;text-align:center;">  
+        <input type="button" class="alertBtn" value="确认添加" onclick="addCustomData();">   
+        <input type="button" class="alertBtn" value="取消" onclick="closeForm();">  
+      </div>  
+    </form>  
+</div>
+
+
+</body>
+</html>
+
+<script>
+
+  function changeOverviewHeader(){
+    var panel = $(this).datagrid("getPanel");
+     var myheaderCol = panel.find("div.datagrid-header td[field='quantity']");
+     myheaderCol.css("background-color","#0000ee");
+  }
+
+  function addCustomDefDays() {
+    j = 1;
+    $("#win").window("open");
+  }
+
+  function closeForm() {
+    $("#win").window("close");
+    refreshTable();
+  }
+
+  function addCustomData() {
+    // 添加表格中的数据
+    $(".first_col").each(function(i){
+
+      var id = $(this).parent().attr("num");
+      console.log(id);
+      var str = '<tr><span rel="4" class="list search_data_btn t_span">15天以上</span><tr>';
+      $("#customData").append(str);
+    })
+    closeForm();
+  }
+
+  var j = 1;
+  function addOptions() {
+
+    var listSize = $(".first_col").length;
+    var index = j + 1;
+    var innerhtml = '<tr id="custom'+j+'" + num="'+j+'">'
+    +'      <td class="first_col thfz">区间 :</td>'
+    +'      <td>'
+    +'        <input type="text" id="startTime'+j+'" name="startTime'+j+'" num="'+j+'"class="input_box" onblur="checkStartNum(this);"/>'
+    +'      </td>'
+    +'      <td class="span_width thfz">--</td>'
+    +'      <td>'
+    +'        <input type="text" formNum='+j+' id="endTime'+j+'" name="endTime'+j+'" num="'+j+'" class="input_box" onblur="checkEndNum(this);"/>'
+    +'      </td>'
+    +'      <td class="thfz">天</td>'
+    +'      <td class="thfz"><a href="javascript:void(0)"" id="'+j+'" onclick="delElement(this.id);" >删除</a></td>'
+    +'    </tr>'
+    j++;
+    $("#alerttable").append(innerhtml);
+
+    listSize ++;
+
+    if (5 == listSize) {
+      $("#addBtn").attr("disabled", "disabled");
+    }
+  }
+
+  function delElement(trId) {
+    $("#custom" + trId).remove();
+    $("#addBtn").removeAttr("disabled");
+  }
+
+  // 刷新自定义天数表格
+  function refreshTable() {
+    var list = $(".first_col");
+    $(".first_col").each(function(i){
+      if(0 != i) {
+        var num = $(this).parent().attr("num");
+        delElement(num);
+      }
+    })
+  }
+
+  // 删除一条自定义天数时更新页面表格
+  function updateOptions(newSize) {
+
+    if(newSize <= 1) {
+      return ;
+    }
+    console.log(newSize);
+    for (var i = 1; i < newSize; i++ ){
+      console.log("i = " + i);
+      var index = i+1;
+      var innerhtml = '<tr id="custom'+i+'">'
+      +'      <td class="first_col thfz">区间'+index+':</td>'
+      +'      <td>'
+      +'        <input type="text" id="startTime'+i+'" name="startTime'+i+'" num="'+i+'" class="input_box" onblur="checkStartNum(this);"/>'
+      +'      </td>'
+      +'      <td class="span_width thfz">--</td>'
+      +'      <td>'
+      +'        <input type="text" formNum='+i+' id="endTime'+i+'" name="endTime'+i+'" num="'+i+'" class="input_box" onblur="checkEndNum(this);"/>'
+      +'      </td>'
+      +'      <td class="thfz">天</td>'
+      +'      <td class="thfz"><a href="javascript:void(0)"" id="'+i+'" onclick="delElement(this.id);" >删除</a></td>'
+      +'    </tr>'
+      j++;
+      $("#alerttable").append(innerhtml);
+    }
+    j = i;
+  }
+
+  /*输入天数合法性校验*/
+  function checkStartNum(handler) {
+    id = $(handler).attr("num");
+    var num = $("#startTime"+id).val();
+    if(isNaN(num)) {
+      $("#startTime"+id).val(0); 
+      alert("不符合空置区间范围，请在0-10000范围内录入");   
+    }
+
+    if(parseInt(num) > 10000 || parseInt(num) < 0) {
+      $("#startTime"+id).val(0);
+      alert("不符合空置区间范围，请在0-10000范围内录入");   
+    }
+  }
+
+  function checkEndNum(handler) {
+    id = $(handler).attr("num");
+    var startNum = $("#startTime"+id).val();
+    var num = $("#endTime"+id).val();
+    if(isNaN(num)) {
+      $("#endTime"+id).val(10000); 
+      alert("不符合空置区间范围，请在0-10000范围内录入");   
+    } else if(parseInt(num) > 10000 || parseInt(num) < 0) {
+      $("#endTime"+id).val(10000);
+      alert("不符合空置区间范围，请在0-10000范围内录入");   
+    } else if (parseInt(startNum) >= parseInt(num)){
+      $("#endTime"+id).val(10000);
+      alert("不符合空置区间范围，请在0-10000范围内录入");   
+    }
+
+  }
+
+  $(function(){
+    $("#optionName .search_data_btn").click(function(){
+      if($(this).attr("rel")==0) {
+        $(this).addClass("on").siblings(".search_data_btn").removeClass("on");
+      } else{
+        if($(this).hasClass("on")){
+          $(this).removeClass("on");
+          if($("#optionName .search_data_btn.on").length<1){
+            $("#optionName .search_data_btn").eq(0).addClass("on");
+          }
+          
+        }
+        else{
+          $(this).addClass("on");
+          $("#optionName .search_data_btn").eq(0).removeClass("on");
+        }
+      }
+    });
+  });
+</script>
