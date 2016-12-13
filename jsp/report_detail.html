@@ -49,7 +49,7 @@
           </div>
         </td>
         <td class="tr">
-          <input type="button" class="searchBtn" value="查询" onclick=""/>
+          <input type="button" class="searchBtn" value="查询" onclick="searchRoomDetails();"/>
         </td>
         <td class="tr">
           <input type="button" class="exportBtn" value="导出库存明细" onclick=""/>
@@ -96,11 +96,11 @@
         <tr num="0">
           <td class="first_col thfz">区间:</td>
           <td>
-            <input type="text" id="startTime0" name="startTime0" num="0" class="input_box" onblur="checkStartNum(this);" value=0 >
+            <input type="text" id="startTime0" name="startTime0" num="0" class="input_box" onblur="checkStartNum(this);">
           </td>
           <td class="span_width thfz">--</td>
           <td>
-            <input type="text" formNum=0 id="endTime0" name="endTime0" num="0" class="input_box" onblur="checkEndNum(this);" value=10000 >
+            <input type="text" formNum=0 id="endTime0" name="endTime0" num="0" class="input_box" onblur="checkEndNum(this);">
           </td>
           <td class="thfz">天</td>
         </tr>
@@ -157,6 +157,12 @@
   }
 
   function addCustomData() {
+
+    //清空表格中的选中
+    for(var i = 0; i < 5; i++) {
+      $("#cdata" + i).removeClass("on");
+    }
+
     // 添加表格中的数据
     var index = 0;
     $(".first_col").each(function(i){
@@ -165,13 +171,15 @@
       //console.log(id);
       var startTime = $("#startTime" + id).val();
       var endTime = $("#endTime" + id).val();
-      $("#cdata" + index ).removeAttr("hidden");
-      $("#cdata" + index ).html(startTime+"-"+endTime+"天");
-      index ++;
+      if(startTime != '' && endTime != '') {
+        $("#cdata" + index ).removeAttr("hidden");
+        $("#cdata" + index ).html(startTime+"-"+endTime+"天");
+        index ++;
+      }
     });
     closeForm();
     for ( ; index < 5; index++) {
-      $("#cdata" + index ).attr("hidden","hidden");
+      $("#cdata" + index).attr("hidden","hidden");
     }
   }
 
@@ -183,11 +191,11 @@
     var innerhtml = '<tr id="custom'+j+'" + num="'+j+'">'
     +'      <td class="first_col thfz">区间 :</td>'
     +'      <td>'
-    +'        <input type="text" id="startTime'+j+'" name="startTime'+j+'" num="'+j+'"class="input_box" onblur="checkStartNum(this);" value=0 >'
+    +'        <input type="text" id="startTime'+j+'" name="startTime'+j+'" num="'+j+'"class="input_box" onblur="checkStartNum(this);">'
     +'      </td>'
     +'      <td class="span_width thfz">--</td>'
     +'      <td>'
-    +'        <input type="text" formNum='+j+' id="endTime'+j+'" name="endTime'+j+'" num="'+j+'" class="input_box" onblur="checkEndNum(this);" value=10000 >'
+    +'        <input type="text" formNum='+j+' id="endTime'+j+'" name="endTime'+j+'" num="'+j+'" class="input_box" onblur="checkEndNum(this);">'
     +'      </td>'
     +'      <td class="thfz">天</td>'
     +'      <td class="thfz"><a href="javascript:void(0)"" id="'+j+'" onclick="delElement(this.id);" >删除</a></td>'
@@ -250,13 +258,13 @@
   function checkStartNum(handler) {
     id = $(handler).attr("num");
     var num = $("#startTime"+id).val();
-    if(isNaN(num)) {
-      $("#startTime"+id).val(0);
-      $.messager.alert("不符合空置区间范围，请在0-10000范围内录入");
+    if(isNaN(num) && num != '') {
+      $("#startTime"+id).val('');
+      alert("不符合空置区间范围，请在0-10000范围内录入");
     }
 
     if(parseInt(num) > 10000 || parseInt(num) < 0) {
-      $("#startTime"+id).val(0);
+      $("#startTime"+id).val('');
       $.messager.alert("不符合空置区间范围，请在0-10000范围内录入");
     }
   }
@@ -265,15 +273,15 @@
     id = $(handler).attr("num");
     var startNum = $("#startTime"+id).val();
     var num = $("#endTime"+id).val();
-    if(isNaN(num)) {
-      $("#endTime"+id).val(10000);
-      $.messager.alert("不符合空置区间范围，请在0-10000范围内录入");
+    if(isNaN(num) && num != '') {
+      $("#endTime"+id).val('');
+      alert("不符合空置区间范围，请在0-10000范围内录入");
     } else if(parseInt(num) > 10000 || parseInt(num) < 0) {
-      $("#endTime"+id).val(10000);
-      $.messager.alert("不符合空置区间范围，请在0-10000范围内录入");
+      $("#endTime"+id).val('');
+      alert("不符合空置区间范围，请在0-10000范围内录入");
     } else if (parseInt(startNum) >= parseInt(num)){
-      $("#endTime"+id).val(10000);
-      $.messager.alert("不符合空置区间范围，请在0-10000范围内录入");
+      $("#endTime"+id).val('');
+      alert("不符合空置区间范围，请在0-10000范围内录入");
     }
 
   }
@@ -299,4 +307,19 @@
       }
     });
   });
+
+  function searchRoomDetails() {
+    var projName = $("#projName").val();
+    var searchDate = $("#searchDate").val();
+
+    var arr = new Array() ;
+
+    $("#optionName .search_data_btn.on").each(function(i){
+      var interval = $(this).html();
+      interval = interval.replace('天', '');
+      arr.push(interval);
+    });
+
+    console.log(arr);
+  }
 </script>
